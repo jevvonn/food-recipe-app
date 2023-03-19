@@ -42,7 +42,7 @@ export default function Home() {
         <InputGroup w={["full", "lg"]}>
           <InputLeftElement pointerEvents="none">
             <CiSearch size={20} />
-          <InputLeftElement
+          </InputLeftElement>
           <Input
             type="search"
             onFocus={(e) => (e.target.value ? onOpen() : false)}
