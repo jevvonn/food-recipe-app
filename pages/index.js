@@ -20,6 +20,7 @@ export default function Home() {
   const [recipes, setRecipes] = useState([]);
 
   const getRandomRecipes = async () => {
+    setRecipes([]);
     const { data } = await axios.get(
       "recipes/random?limitLicense=true&number=21"
     );
@@ -85,8 +86,10 @@ export default function Home() {
         </Box>
       </Box>
 
-      <Heading mt={4}>Popular Recipes</Heading>
-      <Box mt={2}>
+      <Heading mt={4} size="lg">
+        Popular Recipes
+      </Heading>
+      <Box mt={4}>
         {recipes.length ? (
           <RecipeLists recipes={recipes} />
         ) : (

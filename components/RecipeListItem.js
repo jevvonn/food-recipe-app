@@ -6,20 +6,27 @@ import {
   Flex,
   Heading,
   Image,
+  Skeleton,
   Stack,
   Tag,
   TagLabel,
   Text,
 } from "@chakra-ui/react";
 import Link from "next/link";
+import { useState } from "react";
 
 function RecipeListItem({ recipe }) {
+  const [loadingImage, setloadingImage] = useState(true);
+
   return (
-    <Card rounded="lg">
+    <Card rounded="lg" shadow="none" border="1px" borderColor="blackAlpha.300">
       <CardBody>
+        {loadingImage && <Skeleton w="full" h="40" />}
+
         <Image
           loading="lazy"
           src={recipe.image ?? "img/default-img-recipe.jpg"}
+          onLoad={() => setloadingImage(false)}
           borderRadius="lg"
         />
 
@@ -49,7 +56,12 @@ function RecipeListItem({ recipe }) {
           variant="outline"
           w="full"
           border="1px"
-          borderColor="blackAlpha.500"
+          _hover={{
+            backgroundColor: "gray.500",
+            color: "white",
+            border: "none",
+          }}
+          borderColor="blackAlpha.300"
         >
           Get Recipe
         </Button>

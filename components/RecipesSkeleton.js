@@ -14,7 +14,7 @@ function RecipesSkeleton() {
     <>
       <SimpleGrid w="full" minChildWidth="250px" gap={2}>
         {new Array(3).fill("").map((_, i) => (
-          <Card key={i}>
+          <Card key={i} shadow="none" border="1px" borderColor="blackAlpha.300">
             <CardBody>
               <Skeleton w="full" h="40" />
 
