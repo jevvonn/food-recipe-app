@@ -40,10 +40,9 @@ export default function Home() {
 
       <Box display="flex" justifyContent="center" w="full" position="relative">
         <InputGroup w={["full", "lg"]}>
+          <InputLeftElement pointerEvents="none">
+            <CiSearch size={20} />
           <InputLeftElement
-            pointerEvents="none"
-            children={<CiSearch size={20} />}
-          />
           <Input
             type="search"
             onFocus={(e) => (e.target.value ? onOpen() : false)}
