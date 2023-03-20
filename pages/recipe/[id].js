@@ -46,7 +46,7 @@ function RecipeDetails() {
       console.log(data);
       setRecipe(data);
     }
-  }, [error, data]);
+  }, [error, data, toast]);
 
   return (
     <>
@@ -79,6 +79,7 @@ function RecipeDetails() {
         <Box>
           <Flex color="gray.700" w="full" mt={4} gap={4} wrap="wrap">
             <Image
+              alt={recipe.title}
               src={recipe.image}
               width={["full", "full", "40%"]}
               borderRadius="lg"
@@ -224,7 +225,7 @@ function RecipeDetails() {
               <CardBody>
                 <Stack divider={<StackDivider />} spacing="4">
                   {recipe.extendedIngredients.map((ing) => (
-                    <Box>
+                    <Box key={ing.id}>
                       <Heading size="xs" textTransform="uppercase">
                         {ing.original}
                       </Heading>
