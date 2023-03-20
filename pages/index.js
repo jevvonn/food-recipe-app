@@ -30,10 +30,10 @@ export default function Home() {
     setRecipes(null);
     try {
       const { data } = await axios(
-        "recipes/complexSearch?tags=indonesia&number=21&limitlicense=true&addRecipeInformation=true"
+        "recipes/random?limitLicense=true&number=21"
       );
-      localStorage.setItem("current", JSON.stringify(data.results));
-      setRecipes(data.results);
+      localStorage.setItem("current", JSON.stringify(data.recipes));
+      setRecipes(data.recipes);
     } catch (error) {
       console.log(error);
     }
