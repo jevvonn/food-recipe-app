@@ -4,9 +4,13 @@ import {
   Button,
   Card,
   CardBody,
+  CardHeader,
   Flex,
+  Heading,
   Image,
   Skeleton,
+  Stack,
+  StackDivider,
   Tag,
   TagLabel,
   TagLeftIcon,
@@ -24,7 +28,6 @@ import { MdAttachMoney, MdTimer } from "react-icons/md";
 
 function RecipeDetails() {
   const router = useRouter();
-  // const { id } = ;
   const toast = useToast();
   const [recipe, setRecipe] = useState(null);
 
@@ -32,9 +35,7 @@ function RecipeDetails() {
     return summary.replace(/<\/?[^>]+(>|$)/g, "");
   };
 
-  const [{ data, error, loading }] = useAxios(
-    `recipes/${router.query.id}/information`
-  );
+  const [{ data, error }] = useAxios(`recipes/${router.query.id}/information`);
 
   useEffect(() => {
     if (error) {
@@ -42,6 +43,7 @@ function RecipeDetails() {
     }
 
     if (data) {
+      console.log(data);
       setRecipe(data);
     }
   }, [error, data]);
@@ -53,18 +55,20 @@ function RecipeDetails() {
       </Head>
 
       <Flex color="gray.700" w="full" alignItems="center" gap={4}>
-        <Button
-          as={Link}
-          href="/"
-          rounded="full"
-          w="12"
-          h="12"
-          variant="outline"
-        >
-          <AiOutlineArrowLeft size={20} />
-        </Button>
+        <Box>
+          <Button
+            as={Link}
+            href="/"
+            rounded="full"
+            w="12"
+            h="12"
+            variant="outline"
+          >
+            <AiOutlineArrowLeft size={20} />
+          </Button>
+        </Box>
         {recipe ? (
-          <Text fontWeight="semibold" fontSize={["md", "xl", "2xl"]}>
+          <Text fontWeight="semibold" fontSize={["sm", "xl", "2xl"]}>
             {recipe.title}
           </Text>
         ) : (
@@ -158,22 +162,84 @@ function RecipeDetails() {
                   <TagLabel>{recipe.aggregateLikes}</TagLabel>
                 </Tag>
               </Flex>
+              <Flex gap={2} mt={4} wrap="wrap" cursor="pointer">
+                <Tag
+                  as={Link}
+                  href="#summary"
+                  size="lg"
+                  _hover={{ background: "gray.200" }}
+                  borderRadius="full"
+                  cursor="pointer"
+                >
+                  <TagLabel>Summary</TagLabel>
+                </Tag>
+                {recipe.extendedIngredients.length && (
+                  <Tag
+                    as={Link}
+                    href="#ingredients"
+                    size="lg"
+                    _hover={{ background: "gray.200" }}
+                    borderRadius="full"
+                    cursor="pointer"
+                  >
+                    <TagLabel>Ingredients</TagLabel>
+                  </Tag>
+                )}
+              </Flex>
             </Flex>
           </Flex>
 
           <Card
+            id="summary"
             rounded="lg"
             shadow="none"
             border="1px"
             borderColor="blackAlpha.300"
             mt={4}
           >
+            <CardHeader>
+              <Heading size="md">Summary</Heading>
+            </CardHeader>
+
             <CardBody>
               <Text color="gray.700" fontSize="lg" textAlign="justify">
                 {reSummarize(recipe.summary)}
               </Text>
             </CardBody>
           </Card>
+
+          {recipe.extendedIngredients.length ? (
+            <Card
+              id="ingredients"
+              mt={6}
+              rounded="lg"
+              shadow="none"
+              border="1px"
+              borderColor="blackAlpha.300"
+            >
+              <CardHeader>
+                <Heading size="md">Ingredients</Heading>
+              </CardHeader>
+
+              <CardBody>
+                <Stack divider={<StackDivider />} spacing="4">
+                  {recipe.extendedIngredients.map((ing) => (
+                    <Box>
+                      <Heading size="xs" textTransform="uppercase">
+                        {ing.original}
+                      </Heading>
+                      <Text pt="2" fontSize="sm">
+                        Amount : {ing.amount}
+                      </Text>
+                      <Text pt="2" fontSize="sm">
+                        Type : {ing.aisle}
+                      </Text>
+                    </Box>
+                  ))}
+                </Stack>
+              </CardBody>
+            </Card>
+          ) : null}
         </Box>
       )}
     </>

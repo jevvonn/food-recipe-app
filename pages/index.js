@@ -7,55 +7,66 @@ import {
   Spinner,
   useDisclosure,
   useToast,
+  InputRightElement,
+  Button,
+  Tooltip,
 } from "@chakra-ui/react";
 import { CiSearch } from "react-icons/ci";
 import Head from "next/head";
 import RecipeLists from "@/components/RecipeLists";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "../config/axios";
 import RecipesSkeleton from "@/components/RecipesSkeleton";
 import debounce from "@/utils/debounce";
-import useAxios from "@/hooks/useAxios";
+import { AiOutlineReload } from "react-icons/ai";
 
 export default function Home() {
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [recipes, setRecipes] = useState(null);
-  const [searchedRecipes, setsearchedRecipes] = useState([]);
+  const [searchedRecipes, setsearchedRecipes] = useState(null);
+  const inputSearch = useRef(null);
 
-  const toast = useToast();
-  const [{ data, error, loading }] = useAxios(
-    "recipes/random?limitLicense=true&number=21"
-  );
-
-  useEffect(() => {
-    if (error) {
-      toast({ status: "error", title: "Token Habis", duration: 9000 });
-    }
-
-    if (data) {
+  const getRandomRecipes = async () => {
+    setRecipes(null);
+    try {
+      const { data } = await axios(
+        "recipes/random?limitLicense=true&number=21"
+      );
+      localStorage.setItem("current", JSON.stringify(data.recipes));
       setRecipes(data.recipes);
+    } catch (error) {
+      console.log(error);
     }
-  }, [error, data]);
+  };
 
   const searchRecipes = async (q) => {
-    if (!q) return setsearchedRecipes([]);
-    setsearchedRecipes([]);
+    if (!q) return setsearchedRecipes(null);
+    setsearchedRecipes(null);
     const { data } = await axios.get(
       `recipes/autocomplete?number=10&query=${q}`
     );
-
     setsearchedRecipes(data);
   };
 
   const choosedRecipe = async (id, title) => {
+    inputSearch.current.value = title;
     setRecipes(null);
     const similiar = await axios.get(`recipes/${id}/similar?number=11`);
     let idsQuery = id;
     similiar.data.forEach((recipe) => (idsQuery += `,${recipe.id}`));
 
     const { data } = await axios.get(`recipes/informationBulk?ids=${idsQuery}`);
+    localStorage.setItem("current", JSON.stringify(data));
     setRecipes(data);
   };
+
+  useEffect(() => {
+    if (localStorage.getItem("current")) {
+      setRecipes(JSON.parse(localStorage.getItem("current")));
+    } else {
+      getRandomRecipes();
+    }
+  }, []);
 
   const startSearching = debounce((q) => {
     searchRecipes(q);
@@ -77,8 +88,16 @@ export default function Home() {
             onKeyUp={(e) => startSearching(e.target.value)}
             onFocus={(e) => onOpen()}
             onBlur={() => setTimeout(onClose, 200)}
+            ref={inputSearch}
             placeholder="Martabak..."
           />
+          <InputRightElement w="3rem" me="1.5">
+            <Tooltip placement="bottom" label="Generate New Random Recipes">
+              <Button h="2rem" w="full" onClick={() => getRandomRecipes()}>
+                <AiOutlineReload />
+              </Button>
+            </Tooltip>
+          </InputRightElement>
         </InputGroup>
         <Box
           position="absolute"
@@ -95,7 +114,7 @@ export default function Home() {
           flexDirection="column"
           alignItems="center"
         >
-          {searchedRecipes.length ? (
+          {searchedRecipes ? (
             searchedRecipes.map((recipe, i) => (
               <Box
                 py="2"
@@ -119,7 +138,7 @@ export default function Home() {
 
       <Box mt={4}>
         {recipes ? (
-          <RecipeLists recipes={recipes} title="Popular Recipes" />
+          <RecipeLists recipes={recipes} title="Random Recipes" />
         ) : (
           <RecipesSkeleton />
         )}
