@@ -12,7 +12,9 @@ import {
 function RecipesSkeleton() {
   return (
     <>
-      <SimpleGrid w="full" minChildWidth="250px" gap={2}>
+      <Skeleton w="32" h="8" />
+
+      <SimpleGrid mt={3} w="full" minChildWidth="250px" gap={2}>
         {new Array(3).fill("").map((_, i) => (
           <Card key={i} shadow="none" border="1px" borderColor="blackAlpha.300">
             <CardBody>
@@ -34,7 +36,12 @@ function RecipesSkeleton() {
                 <Skeleton w={10} h={4} borderRadius="full" />
               </Flex>
             </CardBody>
-            <CardFooter>
+            <CardFooter display="flex" flexDir="column" gap={2}>
+              <Flex gap="2" wrap="wrap">
+                <Skeleton w={10} h={4} borderRadius="full" />
+                <Skeleton w={10} h={4} borderRadius="full" />
+                <Skeleton w={10} h={4} borderRadius="full" />
+              </Flex>
               <Skeleton w="full" h={7} />
             </CardFooter>
           </Card>
