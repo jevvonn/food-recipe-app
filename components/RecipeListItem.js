@@ -101,7 +101,7 @@ function RecipeListItem({ recipe }) {
         </Flex>
         <Button
           as={Link}
-          href="recipe/123"
+          href={`recipe/${recipe.id}`}
           variant="outline"
           w="full"
           border="1px"

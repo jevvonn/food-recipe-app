@@ -6,6 +6,7 @@ import {
   Text,
   Spinner,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import { CiSearch } from "react-icons/ci";
 import Head from "next/head";
@@ -14,20 +15,27 @@ import { useEffect, useState } from "react";
 import axios from "../config/axios";
 import RecipesSkeleton from "@/components/RecipesSkeleton";
 import debounce from "@/utils/debounce";
+import useAxios from "@/hooks/useAxios";
 
 export default function Home() {
   const { isOpen, onClose, onOpen } = useDisclosure();
-  const [recipes, setRecipes] = useState([]);
+  const [recipes, setRecipes] = useState(null);
   const [searchedRecipes, setsearchedRecipes] = useState([]);
 
-  const getRandomRecipes = async () => {
-    setRecipes([]);
-    const { data } = await axios.get(
-      "recipes/random?limitLicense=true&number=21"
-    );
+  const toast = useToast();
+  const [{ data, error, loading }] = useAxios(
+    "recipes/random?limitLicense=true&number=21"
+  );
 
-    setRecipes(data.recipes);
-  };
+  useEffect(() => {
+    if (error) {
+      toast({ status: "error", title: "Token Habis", duration: 9000 });
+    }
+
+    if (data) {
+      setRecipes(data.recipes);
+    }
+  }, [error, data]);
 
   const searchRecipes = async (q) => {
     if (!q) return setsearchedRecipes([]);
@@ -40,7 +48,7 @@ export default function Home() {
   };
 
   const choosedRecipe = async (id, title) => {
-    setRecipes([]);
+    setRecipes(null);
     const similiar = await axios.get(`recipes/${id}/similar?number=11`);
     let idsQuery = id;
     similiar.data.forEach((recipe) => (idsQuery += `,${recipe.id}`));
@@ -52,10 +60,6 @@ export default function Home() {
   const startSearching = debounce((q) => {
     searchRecipes(q);
   }, 1000);
-
-  useEffect(() => {
-    getRandomRecipes();
-  }, []);
 
   return (
     <>
@@ -70,11 +74,8 @@ export default function Home() {
           </InputLeftElement>
           <Input
             type="search"
-            onChange={(e) => {
-              e.target.value ? onOpen() : onClose();
-              startSearching(e.target.value);
-            }}
-            onFocus={(e) => (e.target.value ? onOpen() : false)}
+            onKeyUp={(e) => startSearching(e.target.value)}
+            onFocus={(e) => onOpen()}
             onBlur={() => setTimeout(onClose, 200)}
             placeholder="Martabak..."
           />
@@ -117,7 +118,7 @@ export default function Home() {
       </Box>
 
       <Box mt={4}>
-        {recipes.length ? (
+        {recipes ? (
           <RecipeLists recipes={recipes} title="Popular Recipes" />
         ) : (
           <RecipesSkeleton />
